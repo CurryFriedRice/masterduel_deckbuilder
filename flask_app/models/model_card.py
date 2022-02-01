@@ -1,4 +1,5 @@
 #Get the connection 
+from contextlib import nullcontext
 from flask_app.config.mysqlconnection import connectToMySQL 
 from flask_app import DATABASE_SCHEMA, app
 from PIL import Image
@@ -9,8 +10,10 @@ import os
 
 class Card:
     def __init__(self,data): #DON'T FORGET TO INITIALIZE EVERY FIELD YOU USE
-        self.id = data['index']
-        self.card_id = data['id']   # the 8 digit combination
+        self.id = data['id']
+        self.pin = data['pin']   # the 8 digit combination        
+        self.alternate_pin = data['alternate_pin'] #strings separated by commas
+
         self.name = data['name']    # This will never be null
         self.description = data['description']  # This will never be null
         self.attack = data['attack'] # this is a minimum of 0
@@ -51,13 +54,20 @@ class Card:
         return "uh oh...."
 
     # C
-    @classmethod
+    @classmethod #We should never really be using this. it fills out EVERY piece of data about a card typically this will be a monster card
     def create(cls,data:dict) -> int: #The expected return is int
-        query = "INSERT INTO cards (card_id, name, description, atk, def, level, type_id, race_id, archetype_id, attribute_id)" 
-        query +=" VALUES (%(card_id)s, %(name)s, %(description)s, %(attack)s, %(defense)s, %(level)s, %(type_id)s, %(race_id)s, %(archetype_id)s, )"
+        query = "INSERT INTO cards (pin, alternate_pin, name, description, attack, defense, level, link_markers, attribute_id, race_id, archetype_id, type_id) " 
+        query +="VALUES (%(pin)s, %(alternate_pin)s, %(name)s, %(description)s, %(attack)s, %(defense)s, %(level)s, %(link_markers)s, %(attribute_id)s, %(race_id)s, %(archetype_id)s, %(type_id)s);"
         user_id = connectToMySQL(DATABASE_SCHEMA).query_db(query, data)
         return user_id
-    
+
+    @classmethod
+    def create_support(cls,data:dict) -> int:
+        query = "INSERT INTO cards (pin, alternate_pin, name, description, attribute_id, race_id, archetype_id, type_id) " 
+        query +="VALUES (%(pin)s, %(alternate_pin)s, %(name)s, %(description)s, %(attribute_id)s,%(race_id)s, %(archetype_id)s, %(type_id)s);"
+        user_id = connectToMySQL(DATABASE_SCHEMA).query_db(query, data)
+        return user_id
+
     # R
     @classmethod
     def get_all(cls) -> list: #This is a get all and will return a list of dictionaries
@@ -92,8 +102,8 @@ class Card:
         else : return []
     
     @classmethod
-    def get_one_with_card_id(cls, data) -> list: #this is the same
-        query = "SELECT * FROM cards WHERE card_id= %(card_id)s "
+    def get_one_with_pin(cls, data) -> list: #this is the same
+        query = "SELECT * FROM cards WHERE pin= %(pin)s "
         results_from_db = connectToMySQL(DATABASE_SCHEMA).query_db(query,data)
         to_object = []
         if results_from_db:
@@ -104,7 +114,7 @@ class Card:
     # U
     @classmethod
     def save(cls,data): #RETURNS NOTHING
-        query = "UPDATE {CLASS} SET value= %(value)s WHERE id=%(id)s"
+        query = "UPDATE {CLASS} SET value= %(value)s pin id=%(id)s"
         return connectToMySQL(DATABASE_SCHEMA).query_db(query,data)
 
     # D

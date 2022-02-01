@@ -2,22 +2,25 @@ async function search(e){
     e.preventDefault();
     var searchForm = document.getElementById('searchForm')
     var form = new FormData(searchForm);
-    fetch('/api/ygo/search',{method:'POST',body:form})
-        .then(res => res.json() )
-        .then( data => {
-            console.log(form)
-            console.log(data)
-            let retHTML = ``
-            for (const values of data)
-            {
-                retHTML += `
-                    <div class='m-2'>
-                        <h1>${values['name']}</h1>
-                    </div>
-                `
-            }
-            document.querySelector("#searchOutput").innerHTML = retHTML
-        })
+
+    var search = await fetch('/card/search',{method:'POST',body:form}) //, {method: 'POST', body: form})
+
+    // fetch('/card/search',{method:'POST',body:form})
+    //     .then(res => res.json() )
+    //     .then( data => {
+    //         console.log(form)
+    //         console.log(data)
+            // let retHTML = ``
+            // for (const values of data)
+            // {
+            //     retHTML += `
+            //         <div class='m-2'>
+            //             <h1>${values['name']}</h1>
+            //         </div>
+            //     `
+            // }
+            // document.querySelector("#searchOutput").innerHTML = retHTML
+        //})
 
 }
 

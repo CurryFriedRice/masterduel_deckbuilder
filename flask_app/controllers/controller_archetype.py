@@ -7,9 +7,9 @@ from flask_app.models.model_archetype import Archetype #Importing the object we'
 
 MODEL = Archetype
 
-@app.route('/')
-def index():
-    return render_template("index.html")
+# @app.route('/')
+# def index():
+#     return render_template("index.html")
 
 #Some of restful Routing
 #Path should be '/TABLE_NAME/ID/ACTION'

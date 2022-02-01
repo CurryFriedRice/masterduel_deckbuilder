@@ -59,7 +59,7 @@ def save_image(path, source):
 
 
 @app.route('/api/ygo/search', methods=['POST'])
-def search_card():
+def search_card_api():
     print(request.form['query'])
     r = model_query.Query.get_one_with_query({"query" : request.form['query']})
     if not r:
@@ -122,28 +122,28 @@ def search_card():
             # model_card.Card.create(input)
 
 
-    cards = model_card.Card.get_all_with_name({"name": request.form['query']})
-    # we must keep in line with JSON format.
-    # requests has a method to convert the data coming back into JSON.
-    print(cards)
-    cardsJson = {}
-    i = 0
-    for item in cards:
-        cardsJson[i] = {
-                "card_id" : item.card_id, 
-                "name" : item.name, 
-                "description" : item.description, 
-                "attack" : item.attack, 
-                "defense": item.defense, 
-                "level": item.level, 
-                "attribute_id": item.attribute_id, 
-                "race_id": item.race_id, 
-                "archetype_id": item.archetype_id,
-                "type_id": item.type_id
-        }
-        i = i + 1
-    print(cardsJson)
-    return jsonify(cardsJson)
+    # cards = model_card.Card.get_all_with_name({"name": request.form['query']})
+    # # we must keep in line with JSON format.
+    # # requests has a method to convert the data coming back into JSON.
+    # print(cards)
+    # cardsJson = {}
+    # i = 0
+    # for item in cards:
+    #     cardsJson[i] = {
+    #             "card_id" : item.card_id, 
+    #             "name" : item.name, 
+    #             "description" : item.description, 
+    #             "attack" : item.attack, 
+    #             "defense": item.defense, 
+    #             "level": item.level, 
+    #             "attribute_id": item.attribute_id, 
+    #             "race_id": item.race_id, 
+    #             "archetype_id": item.archetype_id,
+    #             "type_id": item.type_id
+    #     }
+    #     i = i + 1
+    # print(cardsJson)
+    return "HONK" #jsonify(cardsJson)
 
 
 @app.route("/all/tags")
@@ -160,10 +160,10 @@ def all_tags_test():
 # no route... this is called after the card search
 
 
-# @app.route("/archetypes/setup")
-# def setup_archetypes():
+@app.route("/archetypes/setup")
+def setup_archetypes():
     
-#     response = requests.get(f"https://db.ygoprodeck.com/api/v7/archetypes.php")
-#     model_archetype.Archetype.create_many(response)
+    response = requests.get(f"https://db.ygoprodeck.com/api/v7/archetypes.php")
+    model_archetype.Archetype.create_many(response)
     
-#     return "Nothing"
+    return "Nothing"

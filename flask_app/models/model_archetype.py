@@ -32,18 +32,18 @@ class Archetype:
 
 
     @classmethod #ONLY CALL THIS IF THERE IS A LARGE LIST THAT NEEDS TO BE ADDED
-    def create_many(cls,data:dict) -> int: #The expected return is int
+    def create_many(cls,data:list) -> int: #The expected return is int
         print("attempting to create many!")
         current = cls.get_all()
         current_list = []
         for item in current:
             current_list.append(item.name)
         print(current_list)
-        
+        print(data.json())
         query = "INSERT INTO archetypes (name) VALUES (%(archetype_name)s);"
         user_id = 0
-        for item in data:
-            if item["archetype_name"] not in current_list:
+        for item in data.json():
+            if not current_list or item["archetype_name"] not in current_list:
                 print(item['archetype_name'] + " is not currently listed")
                 user_id = connectToMySQL(DATABASE_SCHEMA).query_db(query,item )
 
