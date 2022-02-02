@@ -16,15 +16,17 @@ class MySQLConnection:
         self.connection = connection
 
     # the method to query the database
-    def query_db(self, query, data=None, many=False):
+    def query_db(self, query, data=None):
         with self.connection.cursor() as cursor:
             try:
                 query = cursor.mogrify(query, data)
                 print("Running Query:", query)
-                if not many:
-                    executable = cursor.execute(query, data)
-                else:
-                    executable = cursor.executemany(query, data)
+                # if not many:
+                    #executable = 
+                cursor.execute(query, data)
+                # else:
+                #     #executable = 
+                #     cursor.executemany(query, data)
                 if query.lower().find("insert") >= 0:
                     # INSERT queries will return the ID NUMBER of the row inserted
                     self.connection.commit()

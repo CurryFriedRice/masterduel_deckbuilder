@@ -17,7 +17,7 @@ class Card:
         self.name = data['name']    # This will never be null
         self.description = data['description']  # This will never be null
         self.attack = data['attack'] # this is a minimum of 0
-        self.defense = data['defense'] # this is a minimum of 0
+        self.defense = data['defense']# this is a minimum of 0
         self.level = data['level']  # this has a minimum of 0
                                     # This is also used for: RANK, and LINK VALUE
 
@@ -25,7 +25,7 @@ class Card:
         self.archetype_id = data['archetype_id'] # What Group this card belongs
         self.attribute_id = data['attribute_id'] # So this determins
         self.type_id = data['type_id'] # So this helps determine how a card is laid out
-        self.link_markers =  data['link_markers'].split(',') # so this is going to be stored as a string.that's going to be split up into an array
+        self.link_markers =  data['link_markers'].split(',') if data['link_markers'] is not None else None # so this is going to be stored as a string.that's going to be split up into an array
 
         self.created_at = data['created_at']
         self.updated_at = data['updated_at']
@@ -82,8 +82,9 @@ class Card:
 
     @classmethod
     def get_all_with_name(cls, data) -> list: #This is a get all and will return a list of dictionaries
-        query = "SELECT * FROM cards WHERE name LIKE %(name)s;"
-        results_from_db =  connectToMySQL(DATABASE_SCHEMA).query_db(query, data) #Gets a list of dictionaries....
+        #print("%"+data['name']+"%")
+        query = "SELECT * FROM cards WHERE name LIKE '%%%s%%'" % (data)
+        results_from_db =  connectToMySQL(DATABASE_SCHEMA).query_db(query) #Gets a list of dictionaries....
         to_object =[] 
         if results_from_db:
             for values in results_from_db :  #turn those dictionaries into objects

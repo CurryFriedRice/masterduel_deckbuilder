@@ -40,10 +40,6 @@ def save_image(path, source):
     urllib.request.urlretrieve(source,str(path))
 
 
-@app.route('/')
-def index():
-    return render_template("index.html")
-
 #Some of restful Routing
 #Path should be '/TABLE_NAME/ID/ACTION'
 #/User/new
@@ -65,10 +61,11 @@ def create_card():
 @app.route('/card/search', methods=['POST'])
 def search_card():
     #first we check to see if we've searched this before... 
+    #TODO: STORE THE RESULTS IN THE SESSION CACHE SO IT DOESN'T PING MY SERVER AGAIN
     r = model_query.Query.get_one_with_query({"query" : request.form['query']})
     if not r: #if we did not get a hit then we've never searched this
         print("Quuery not Found Creating query!")
-        model_query.Query.create({"query": request.form['query']})
+        model_query.Query.create(request.form['query'])
         #add the query to our db so we don't ping them to ask the same thing
         #TODO: Check how old the query is.... If it's too old then Ask the API again and refresh results
         #r =  test_Data
@@ -85,60 +82,13 @@ def search_card():
         races = model_race.Race.json_all_name_id()
         archetypes = model_archetype.Archetype.json_all_name_id()
         types = model_type.Type.json_all_name_id()
-
+        print(archetypes['Igknight'])
         #resJson = r#.json()
         #So then for every item in the piece of data
         for data in r.json()['data']:
             #Check to see if we have this
-            if Card.get_one_with_pin({"pin": data["id"]}):
-                print("Card Exists!", data['name']) #if we do then don't do anything just let it be known
-            elif types[data['type']] == types['Trap Card'] or types[data['type']] == types['Spell Card'] or types[data['type']] == types['Skill Card']:
-                print("Creating Spell/Trap Card", data['name'])
-                link_markers = [0,0,0,0,0,0,0,0]
-                link_markers = ','.join(str(i) for i in link_markers)
-                alternate_pins = ''
-                for i in data['card_images']:
-                    alternate_pins += str(i['id']) + ','
-                #
-                card_data = {
-                    "pin": data['id'],
-                    "alternate_pin": alternate_pins[:-1],
-                    "name" : data['name'],
-                    "description" : data['desc'],
-                    # "attack" : 0,
-                    # 'defense': 0,
-                    # 'level': 0,
-                    #'link_markers': link_markers,
-                    'attribute_id': attributes['NONE'],
-                    'race_id': races[data['race']],
-                    'archetype_id': archetypes[data['archetype']],
-                    'type_id': types[data['type']],
-                }
-                print(card_data)
-                Card.create_support(card_data)
-            else:
+            if not Card.get_one_with_pin({"pin": data["id"]}):
                 print("Creating Data For monster Card ",data['name'])
-                
-                if 'linkval' in data:
-                    level = data['linkval']
-                    defense = 0
-                else:
-                    level = data['level']
-                    defense = data['def']
-                link_markers = [0,0,0,0,0,0,0,0]
-                if 'linkmarkers' in data:
-                    for i in data['linkmarkers']:
-                        if i == "Top-Left":     link_markers[0] = 1
-                        elif i == "Top":        link_markers[1] = 1
-                        elif i == "Top-Right":  link_markers[2] = 1
-                        elif i == "Left":       link_markers[3] = 1
-                        elif i == "Right":      link_markers[4] = 1
-                        elif i == "Bottom-Left":link_markers[5] = 1
-                        elif i == "Bottom":     link_markers[6] = 1
-                        elif i == "Bottom-Right":link_markers[7] = 1
-                
-                link_markers = ','.join(str(i) for i in link_markers)
-                print(link_markers)
                 alternate_pins = ''
                 for i in data['card_images']:
                     alternate_pins += str(i['id']) + ','
@@ -159,25 +109,25 @@ def search_card():
                 }
                 print(card_data)
                 Card.create(card_data)
-            for image in data['card_images']:
-                filepath = Path(f"{app.static_folder}/img/card_image/{image['id']}.jpg")
-                if not Path.is_file(filepath): 
-                    save_image(filepath, image['image_url'])
-                filepath_smoll = Path(f"{app.static_folder}/img/card_image_small/{image['id']}.jpg")
-                if not Path.is_file(filepath_smoll): 
-                    save_image(filepath_smoll, image['image_url_small'])
+                for image in data['card_images']:
+                    filepath = Path(f"{app.static_folder}/img/card_image/{image['id']}.jpg")
+                    if not Path.is_file(filepath): 
+                        save_image(filepath, image['image_url'])
+                    filepath_smoll = Path(f"{app.static_folder}/img/card_image_small/{image['id']}.jpg")
+                    if not Path.is_file(filepath_smoll): 
+                        save_image(filepath_smoll, image['image_url_small'])
 
     else: 
         print("Query Already Ran " + request.form['query'] + " moving onto getting them from our DB...")
-    cards = model_card.Card.get_all_with_name({"name": request.form['query']})
+    cards = model_card.Card.get_all_with_name(request.form['query'])
     # we must keep in line with JSON format.
     # requests has a method to convert the data coming back into JSON.
     print(cards)
-    cardsJson = {}
+    cardsJson = {"data" : []}
     i = 0
     for item in cards:
-        cardsJson[i] = {
-                "card_id" : item.card_id, 
+        cardsJson['data'].append({
+                "pin" : item.pin, 
                 "name" : item.name, 
                 "description" : item.description, 
                 "attack" : item.attack, 
@@ -187,7 +137,7 @@ def search_card():
                 "race_id": item.race_id, 
                 "archetype_id": item.archetype_id,
                 "type_id": item.type_id
-        }
+        })
         i = i + 1
     print(cardsJson)
     return jsonify(cardsJson)

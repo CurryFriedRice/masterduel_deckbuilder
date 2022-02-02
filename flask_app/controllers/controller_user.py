@@ -1,7 +1,9 @@
 from flask_app import app
 #Then import the important flask responses
-from flask import render_template,redirect,request,session,flash
+from flask import render_template,redirect,request,session,flash, jsonify
 from flask_bcrypt import Bcrypt
+import requests
+
 #then import the SAME relative file
 from flask_app.models.model_user import User #Importing the object we're manipulating
 
@@ -9,6 +11,11 @@ bcrypt = Bcrypt(app)
 MODEL = User
 
 @app.route('/')
+def to_dashboard():
+    return redirect("/dashboard")
+
+
+@app.route('/dashboard')
 def get_form():
     # if 'uuid' in session:
     #     return redirect("/dashboard")
@@ -26,47 +33,48 @@ def get_form():
 #/user/<id>/edit
 #/user/<id>/update
 #/user/<id>/delete
+@app.route("/account/form")
+def get_Login():
+    if "uuid" in session:
+        return redirect("/dashboard")
+    return render_template("login_form.html")
 
-@app.route("/login", methods=['POST'])
-def login():
-    user_in_db = MODEL.get_one_with_email({"email" :request.form['email']})
-
-    if not user_in_db:
-        flash("Invalid User/Password", "account_login_err")
-        return redirect("/")
-
-    if not bcrypt.check_password_hash(user_in_db.password, request.form['password']):
-        flash("invalid Email/Password", "account_login_err")
-        return redirect("/")
-    # DON'T DO THIS.... INSTEAD USE A UUID
-    session['uuid'] = user_in_db.id
-    
-    return redirect("/")
 @app.route("/account/logout")
 def logout():
     session.pop('uuid',0)
     flash("User Successfully Logged Out", "account_session_clear")
     return redirect("/")
 
-#So this is what happens when the URL reaches that ROUTE
+
+@app.route("/account/login", methods=['POST'])
+def login():
+    user_in_db = MODEL.get_one_with_email({"email" :request.form['email']})
+
+    if not user_in_db:
+        return jsonify({"error": {'login_err': "Invalid Email/Password"}})
+
+    if not bcrypt.check_password_hash(user_in_db.password, request.form['password']):
+        return jsonify({"error": {'login_err': "Invalid Email/Password"}})
+    
+    session['uuid'] = user_in_db.uuid
+    session['username'] = user_in_db.username
+    return redirect("/dashboard")
+
+
 @app.route('/account/create',methods=['POST']) #action route
 def create():
-    if not MODEL.validate(request.form):
-        return redirect("/")
+    if MODEL.validate(request.form):
+        return jsonify({"error" : MODEL.validate(request.form)})
     #make and format the data
     form_dict = dict(request.form)
     form_dict['password'] = bcrypt.generate_password_hash(request.form['password'])
-    #bcrypt.generate_password_hash(request.form['id']) 
     #add the entry
-    form_dict['uuid'] =  "1"
-    form_dict['username'] = (form_dict["first_name"] + form_dict["last_name"])
+    form_dict['uuid'] = requests.get("https://www.uuidtools.com/api/generate/v4").json()[0]
     user_id = MODEL.create(form_dict)
     #get the entry
-    # account = Account.get_one({"id":user_id})
-    session['uuid'] = user_id  #this is so we don't use the UUID
-    
-    #Redirect to the account
-    return redirect("/dashboard")
+    session['uuid'] = form_dict['uuid'] #this is so we don't use t he UUID
+    session['username'] = form_dict['username']
+    return  redirect("/dashboard")
 
 #we aren't doing editing....
 @app.route("/account/edit")
@@ -98,3 +106,7 @@ def delete(id):
     return redirect("/")  
 
 
+@app.route("/account/logout")
+def clear_uuid():
+    session.pop("uuid",0)
+    return redirect('/dashboard')

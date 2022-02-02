@@ -15,7 +15,8 @@ PASSWORD_UPPERCASE_REGEX = re.compile(r'[A-Z]')
 class User:
     def __init__(self,data): #DON'T FORGET TO INITIALIZE EVERY FIELD YOU USE
         self.id = data['id']
-        self.username = ['username']
+        self.uuid = data['uuid']
+        self.username = data['username']
         self.email = data['email']
         self.password = data['password']
         self.created_at = data['created_at']
@@ -38,7 +39,7 @@ class User:
     # C
     @classmethod
     def create(cls,data:dict) -> int: #The expected return is int
-        query = "INSERT INTO users (password, email, first_name, last_name) VALUES (%(password)s, %(email)s, %(first_name)s, %(last_name)s)"
+        query = "INSERT INTO users (uuid, username, email, password) VALUES (%(uuid)s, %(username)s, %(email)s, %(password)s);"
         user_id = connectToMySQL(DATABASE_SCHEMA).query_db(query,data)
         return user_id
 
@@ -71,6 +72,14 @@ class User:
             return cls(results_from_db[0])
         else : return []
 
+    @classmethod
+    def get_one_with_username(cls, data) -> list: #this is the same
+        query = "SELECT * FROM users WHERE username = %(username)s "
+        results_from_db = connectToMySQL(DATABASE_SCHEMA).query_db(query,data)
+        if results_from_db:
+            return cls(results_from_db[0])
+        else : return []
+
     @classmethod #typically just use this
     def get_one_with_email(cls,data):
         query = "SELECT * FROM users WHERE email=%(email)s "
@@ -96,6 +105,7 @@ class User:
     @staticmethod
     def validate(data):
         is_valid = True
+        errorMessages = {}
         #Username Validation
         # if len(data['username']) < 2:
         #     flash("Username is not long enough", 'account_username_err')
@@ -104,50 +114,46 @@ class User:
         #     flash("Username is invalid. No special characters", 'account_username_err')
         #     is_valid = False
 
-        if len(data['first_name']) < 2:
-            flash("First name needs to be longer than two Characters", 'account_first_name_err')
-            is_valid = False
-        elif not NAME_REGEX.match(data['first_name']):
-            flash("First name should not have special characters in it", 'account_first_name_err')
-            is_valid = False
+        # if len(data['first_name']) < 2:
+        #     flash("First name needs to be longer than two Characters", 'account_first_name_err')
+        #     is_valid = False
+        # elif not NAME_REGEX.match(data['first_name']):
+        #     flash("First name should not have special characters in it", 'account_first_name_err')
+        #     is_valid = False
         
-        if len(data['last_name']) < 2:
-            flash("Last name needs to be longer than two Characters", 'account_last_name_err')
-            is_valid = False
-        elif not NAME_REGEX.match(data['last_name']):
-            flash("Last name should not have special characters in it", 'account_last_name_err')
-            is_valid = False
+        # if len(data['last_name']) < 2:
+        #     flash("Last name needs to be longer than two Characters", 'account_last_name_err')
+        #     is_valid = False
+        # elif not NAME_REGEX.match(data['last_name']):
+        #     flash("Last name should not have special characters in it", 'account_last_name_err')
+        #     is_valid = False
 
+        if len(data['username']) < 3:
+            errorMessages['account_username_err'] = "Username Must be longer than 3 characters"
+        elif User.get_one_with_username({"username" : data['username']}):
+            errorMessages['account_username_err'] = "That username is already in use"
 
 
         if not EMAIL_REGEX.match(data['email']):
-            flash("Email is not a valid format", "account_email_err")
-            is_valid = False
+            errorMessages['account_email_err'] = "Email is not a valid Format"
         elif User.get_one_with_email({'email' : data['email']}):
-            flash("Email already in use!","account_email_err")
-            is_valid=False
+            errorMessages['account_email_err'] = "Email already in use!"
         elif data['email'] != data['email_confirm']:
-            flash("Emails do not Match!", "account_email_err")
-            is_valid=False
+            errorMessages['account_email_err'] = "Emails do not Match!"
 
         #password validation
         if len(data['password']) < 8:
-            flash("Password has to be at least 8 characters", "account_password_err")
-            is_valid=False
+            errorMessages['account_password_err'] = "Password has to be at least 8 characters"
         elif data['password'] != data['password_confirm'] :
-            flash("Passwords do not match!", "account_password_err")
-            is_valid=False
+            errorMessages['account_password_err'] = "Passwords do not match!"
         elif not re.search(PASSWORD_SPECIAL_REGEX, data['password']):
-            flash("Password does not have a special character or Number!", "account_password_err")
-            is_valid=False
+            errorMessages['account_password_err'] = "Password does not have a special character or Number!"
         elif not re.search(PASSWORD_UPPERCASE_REGEX, data['password']):
-            flash("Password does not have an uppercase letter!", "account_password_err")
-            is_valid=False
-        
+            errorMessages['account_password_err'] = "Password does not have an uppercase letter!"
 
         if "eula" not in data:
-            flash("You must agree to the EULA to create an account", 'account_eula_err')
-            is_valid = False
+            errorMessages['account_eula_err'] = "You must agree to the end user liscense agreement to create an account!"
+
         # if (re.search(PASSWORD_SPECIAL_REGEX, data['password'])) : 
         #     print("Password contains a special character")
         # else: print("Password does NOT contain a special character")
@@ -158,4 +164,4 @@ class User:
         # This data isn't stored in the DB since it does not have space to save it....
         # BUT the idea can still be validated and once it'
 
-        return is_valid
+        return errorMessages
