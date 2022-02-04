@@ -62,6 +62,8 @@ def create_card():
 def search_card():
     #first we check to see if we've searched this before... 
     #TODO: STORE THE RESULTS IN THE SESSION CACHE SO IT DOESN'T PING MY SERVER AGAIN
+    if len(request.form['query']) < 2:
+        return jsonify({"error": "Search must be at least two characters"})
     r = model_query.Query.get_one_with_query({"query" : request.form['query']})
     if not r: #if we did not get a hit then we've never searched this
         print("Quuery not Found Creating query!")
@@ -70,9 +72,8 @@ def search_card():
         #TODO: Check how old the query is.... If it's too old then Ask the API again and refresh results
         #r =  test_Data
         r =requests.get(f"https://db.ygoprodeck.com/api/v7/cardinfo.php?fname={request.form['query']}")
-        
         #If the API hit an error then the card does not exist
-        if "error" in r:
+        if "error" in r.json():
             return jsonify({'error' : 'Card not found! Search only for card names'})
             #TODO: Eventually add a search descriptions as well
 
@@ -82,7 +83,6 @@ def search_card():
         races = model_race.Race.json_all_name_id()
         archetypes = model_archetype.Archetype.json_all_name_id()
         types = model_type.Type.json_all_name_id()
-        print(archetypes['Igknight'])
         #resJson = r#.json()
         #So then for every item in the piece of data
         for data in r.json()['data']:
@@ -116,31 +116,58 @@ def search_card():
                     filepath_smoll = Path(f"{app.static_folder}/img/card_image_small/{image['id']}.jpg")
                     if not Path.is_file(filepath_smoll): 
                         save_image(filepath_smoll, image['image_url_small'])
-
     else: 
         print("Query Already Ran " + request.form['query'] + " moving onto getting them from our DB...")
     cards = model_card.Card.get_all_with_name(request.form['query'])
+    if not cards:
+        return jsonify({'error' : 'Card not found! Search only for card names'})
     # we must keep in line with JSON format.
     # requests has a method to convert the data coming back into JSON.
     print(cards)
     cardsJson = {"data" : []}
-    i = 0
+    if 'cards' not in session:
+        session['cards'] = {}
+
     for item in cards:
+        card_data = {}
         cardsJson['data'].append({
-                "pin" : item.pin, 
-                "name" : item.name, 
-                "description" : item.description, 
-                "attack" : item.attack, 
-                "defense": item.defense, 
-                "level": item.level, 
-                "attribute_id": item.attribute_id, 
-                "race_id": item.race_id, 
-                "archetype_id": item.archetype_id,
-                "type_id": item.type_id
+                "pin" : item.pin
+                # "name" : item.name, 
+                # "description" : item.description, 
+                # "attack" : item.attack, 
+                # "defense": item.defense, 
+                # "level": item.level, 
+                # "attribute_id": item.attribute_id, 
+                # "race_id": item.race_id, 
+                # "archetype_id": item.archetype_id,
+                # "type_id": item.type_id
         })
-        i = i + 1
+
     print(cardsJson)
     return jsonify(cardsJson)
+
+@app.route("/card/<int:pin>.json")
+def card_json(pin):
+    card = Card.get_one_with_pin({"pin": pin})
+    cardJSON = {
+                "pin" : card.pin, 
+                "name" : card.name, 
+                "description" : card.description, 
+                "attack" : card.attack, 
+                "defense": card.defense, 
+                "level": card.level, 
+                "attribute_id":card.attribute_id,
+                "attribute":  model_attribute.Attribute.get_one({"id" : card.attribute_id}).name if card.attribute_id is not None else None, 
+                "race_id": card.race_id, 
+                "race" :  model_race.Race.get_one({"id" : card.race_id}).name if card.race_id is not None else None, 
+                "archetype_id": card.archetype_id,
+                "archetype" :  model_archetype.Archetype.get_one({"id" : card.archetype_id}).name if card.archetype_id is not None else None,  
+                "type_id": card.type_id,
+                "type": model_type.Type.get_one({"id": card.type_id}).name if card.type_id is not None else None,
+                "link_markers": card.link_markers if card.link_markers is not None else None
+    }
+    print (cardJSON)
+    return jsonify(cardJSON)
 
 
 # @app.route("/TABLE/<int:id>")

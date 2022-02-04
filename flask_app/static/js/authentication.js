@@ -1,32 +1,3 @@
-function generate_small_card(data)
-{
-    return `
-        <img src="/static/img/card_image_small/${data['pin']}.jpg">
-    `
-}
-
-
-async function search(e){
-    e.preventDefault();
-    var searchForm = document.getElementById('searchForm')
-    var form = new FormData(searchForm);
-
-    var search = await fetch('/card/search',{method:'POST',body:form}) //, {method: 'POST', body: form})
-        .then(res => res.json())
-        .then(data => {
-            console.log(form)
-            console.log(data)
-            html = ``
-            for (var dat of data['data'])
-            {
-                html += generate_small_card(dat)
-            }
-
-
-            document.querySelector("#searchOutput").innerHTML = html
-        })
-    }
-
 async function createAccount(e)
 {
         e.preventDefault()
@@ -65,7 +36,8 @@ async function login(e)
             {
                 err = data['error']
                 document.querySelector(`#login_err`).innerText = err['login_err'] ? err['login_err']  : ''
-            }            
+            }
         })
 }
-    
+
+

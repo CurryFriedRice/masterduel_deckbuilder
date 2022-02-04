@@ -6,7 +6,7 @@ import requests
 
 #then import the SAME relative file
 from flask_app.models.model_user import User #Importing the object we're manipulating
-
+from flask_app.models import model_deck
 bcrypt = Bcrypt(app)
 MODEL = User
 
@@ -17,13 +17,15 @@ def to_dashboard():
 
 @app.route('/dashboard')
 def get_form():
+    session['cards'] = {}
     # if 'uuid' in session:
     #     return redirect("/dashboard")
     # #REMOVE THIS!
-    # context = {
-    #     "accounts" : MODEL.get_all()
-    # }
-    return render_template("index.html") #, **context)
+    context = {
+        "decks" : model_deck.Deck.get_all(),
+        "users" : User.get_all()
+    } 
+    return render_template("index.html", **context)
 
 
 #Some of restful Routing
@@ -76,37 +78,50 @@ def create():
     session['username'] = form_dict['username']
     return  redirect("/dashboard")
 
-#we aren't doing editing....
-@app.route("/account/edit")
-def edit():
-    if 'uuid' not in session:
-        return redirect("/account")
-
+@app.route('/user/<string:uuid>')
+def user_decks(uuid):
     context = {
-        "accounts" : MODEL.get_one_with_uuid({"uuid": session['id']})
+        "decks" : model_deck.Deck.get_all_with_uuid({"uuid": uuid}),
+        "users" : User.get_all()
     }
-    return render_template("account_edit.html", **context)
-
-@app.route("/account/update", methods=['POST'])
-def update():
-    if 'uuid' not in session:
-        return redirect("/account")
-    user_in_db = MODEL.get_one_with_uuid({'uuid': session['uuid']})
-    if not user_in_db:
-        flash("Attempting to edit Wrong account", "account_edit_err")
-        return redirect("/")
-    nothing = MODEL.update(request.form)
-    flash("Update successful", "account_edit_success")
-    return redirect("/account/edit")
+    return render_template("index.html", ** context)
 
 
-@app.route("/account/delete", methods=['POST'])
-def delete(id):
-    #nothing = MODEL.delete({"id":id})
-    return redirect("/")  
+# #we aren't doing editing....
+# @app.route("/account/edit")
+# def edit():
+#     if 'uuid' not in session:
+#         return redirect("/account")
+
+#     context = {
+#         "accounts" : MODEL.get_one_with_uuid({"uuid": session['id']})
+#     }
+#     return render_template("account_edit.html", **context)
+
+# @app.route("/account/update", methods=['POST'])
+# def update():
+#     if 'uuid' not in session:
+#         return redirect("/account")
+#     user_in_db = MODEL.get_one_with_uuid({'uuid': session['uuid']})
+#     if not user_in_db:
+#         flash("Attempting to edit Wrong account", "account_edit_err")
+#         return redirect("/")
+#     nothing = MODEL.update(request.form)
+#     flash("Update successful", "account_edit_success")
+#     return redirect("/account/edit")
 
 
-@app.route("/account/logout")
-def clear_uuid():
-    session.pop("uuid",0)
-    return redirect('/dashboard')
+# @app.route("/account/delete", methods=['POST'])
+# def delete(id):
+#     #nothing = MODEL.delete({"id":id})
+#     return redirect("/")  
+
+
+# @app.route("/account/logout")
+# def clear_uuid():
+#     session.pop("uuid",0)
+#     return redirect('/dashboard')
+
+# @app.route('/account/session/cards')
+# def get_session_cards():
+#     return session['cards']

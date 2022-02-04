@@ -6,7 +6,7 @@
 
 .container
 {
-    width: 1200px;
+    width: 1440px;
     margin: 0px auto;
 }
 
@@ -20,4 +20,27 @@ form > button
 #register, #login
 {
     width: 400px;
+}
+
+#deckSide
+{
+    width: 980px;
+}
+#searchSide
+{
+    width: 460px;
+}
+.card
+{
+    width: 86px;
+    height: 123px;
+}
+
+#mainDeck
+{
+    height:500px
+}
+#extraDeck
+{
+    height:250px
 }

@@ -111,7 +111,17 @@ class Card:
             return cls(results_from_db[0])
         else : return []
             
-
+    @classmethod
+    def get_one_with_pin_and_ALL_Details(cls, data):
+        query =  "SELECT * FROM cards "
+        query += "JOIN attributes ON attributes.id = cards.attribute_id "
+        query += "JOIN archetypes ON archetypes.id = cards.archetype_id "
+        query += "JOIN types ON types.id = cards.type_id "
+        query += "JOIN races ON races.id = cards.race_id "
+        query += "WHERE pin = %(pin)s;"
+        results_from_db = connectToMySQL(DATABASE_SCHEMA).query_db(query,data)
+        if results_from_db:
+            return cls(results_from_db[0])
     # U
     @classmethod
     def save(cls,data): #RETURNS NOTHING

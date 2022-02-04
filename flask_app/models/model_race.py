@@ -65,6 +65,7 @@ class Race:
         results_from_db = connectToMySQL(DATABASE_SCHEMA).query_db(query,data)
         to_object = []
         if results_from_db:
+            return cls(results_from_db[0])
             for values in results_from_db :  #turn those dictionaries into objects
                 to_object.append(cls(values))
             return to_object
