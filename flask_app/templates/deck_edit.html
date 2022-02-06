@@ -14,6 +14,7 @@
             <div class="">
                 <div class="d-flex justify-content-between align-items-center">
                     <h1><a href='/dashboard'>Home</a></h1>
+                    <h1><a href="/about">About</a></h1>
                     {%if session['uuid']%}
                     <h1><a href="/account/logout"> logout</a></h1>
                     {%elif not session['uuid']%}
@@ -61,11 +62,14 @@
                         </form>
                         
                     </div>
-                    <div id="searchOutput" class="d-flex flex-wrap justify-content-left">
+                    <div id="searchOutput" class="d-flex flex-wrap justify-content-left overflow-auto">
                         
                     </div>
                 </div>
             </div>
+        </div>
+        <div id="cardDetails">
+            
         </div>
         <div id="errorOutput"></div>
         <form id="details" name="details" onsubmit="submitDeck(event)" class="d-flex flex-column">
@@ -73,11 +77,18 @@
             <input name = "name" placeholder="Wind-Witch crafters">
             <label for="playstyle"> Playstyle </label> 
             <textarea name = "playstyle"></textarea>
-            <button>Submit Deck</button>
+            <button class="btn btn-primary mt-3 mb-3">Update Deck</button>
         </form>
-    </div>
-    <div id="cardDetails">
-        HELLO
+
+        
+        <form id="delete" name="delete" onsubmit="deleteDeck(event)" class="d-flex flex-column text-center">
+            
+            <div class="mt-3 mb-3">
+                <input type="checkbox" class="btn-check" id="btncheck1" name="delete-confirm" autocomplete="off">
+                <label class="btn btn-outline-danger" for="btncheck1">Hey! Before you delete this deck FOREVER you must acknowledge it by clicking this checkbox</label>
+            </div>
+            <button class='btn btn-danger mt-3'>Delete Deck</button>
+        </form>
     </div>
 
     <script src="{{url_for('static',filename='js/deckListEdit.js')}}"></script>

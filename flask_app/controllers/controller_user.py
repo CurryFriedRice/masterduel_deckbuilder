@@ -1,3 +1,4 @@
+import re
 from flask_app import app
 #Then import the important flask responses
 from flask import render_template,redirect,request,session,flash, jsonify
@@ -13,7 +14,9 @@ MODEL = User
 @app.route('/')
 def to_dashboard():
     return redirect("/dashboard")
-
+@app.route("/about")
+def to_about():
+    return render_template("about.html")
 
 @app.route('/dashboard')
 def get_form():

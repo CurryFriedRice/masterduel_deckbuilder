@@ -113,6 +113,20 @@ def get_deck_list(id):
     return jsonify(dataJSON)
 
 
+@app.route('/deck/<int:id>/delete', methods=["POST"])
+def delete_deck(id):
+    target = Deck.get_one({"id": id})
+    print(target.user_id == session['uuid'])
+    if target.user_id != session['uuid']:
+        return jsonify({"error": "You didn't make this deck... How are you even here?"})
+    if 'delete-confirm' not in request.form:
+        return jsonify({"error": "You need to agree that this will be gone forever"})
+    Deck.delete({'id': id})
+    model_decklist.DeckList.delete({"deck_id":id})
+    return redirect("/dashboard")
+
+
+
 # @app.route("/TABLE/<int:id>")
 # def view(id):
 #     context = {

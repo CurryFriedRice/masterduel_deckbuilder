@@ -25,10 +25,12 @@ form > button
 #deckSide
 {
     width: 980px;
+
 }
 #searchSide
 {
     width: 460px;
+ 
 }
 .card
 {
@@ -36,11 +38,41 @@ form > button
     height: 123px;
 }
 
+
 #mainDeck
 {
-    height:500px
+    width: 900px;
+    min-height:500px;
 }
 #extraDeck
 {
-    height:250px
+    width: 900px;
+    min-height:250px;
+
+}
+
+#searchOutput
+{
+    max-height: 670px;
+}
+
+
+.quarter
+{
+    width:280px;
+}
+.half
+{
+    width: 420px;
+}
+.bigCard
+{
+    width:258px;
+    height:369px;
+}
+
+.about
+{
+    width:450px;
+    
 }

@@ -77,7 +77,6 @@ class DeckList:
         query = "DELETE FROM decklists WHERE deck_id=%(deck_id)s;"
         # This would target a field and flag is as disabled so we get to keep the data.
         # query = "UPDATE {TABLE} SET account_disabled=true WHERE id = %(id)s"
-        print("Snargle")
         return connectToMySQL(DATABASE_SCHEMA).query_db(query,data)
     
     @classmethod

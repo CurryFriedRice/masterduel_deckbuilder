@@ -94,7 +94,8 @@ class Deck:
     # D
     @classmethod 
     def delete(cls,data): #RETURNS NOTHING
-        query = "DELETE FROM {TABLE} WHERE id=%(id)s;"
+        print(data)
+        query = "DELETE FROM decks WHERE id=%(id)s;"
         # This would target a field and flag is as disabled so we get to keep the data.
         # query = "UPDATE {TABLE} SET account_disabled=true WHERE id = %(id)s"
         return connectToMySQL(DATABASE_SCHEMA).query_db(query,data)

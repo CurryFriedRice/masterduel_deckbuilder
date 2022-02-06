@@ -13,6 +13,7 @@
         <div class="">
             <div class="d-flex justify-content-between align-items-center">
                 <h1><a href='/dashboard'>Home</a></h1>
+                <h1><a href="/about">About</a></h1>
                 {%if session['uuid']%}
                 <h1><a href="/account/logout"> logout</a></h1>
                 {%elif not session['uuid']%}

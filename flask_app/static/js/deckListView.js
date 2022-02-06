@@ -70,7 +70,7 @@ function generate_small_card(data) {
         <img src="/static/img/card_image_small/${data['pin']}.jpg" 
             class='card'
             card_pin='${data['pin']}'
-            onmousedown = 'grabCard(event)'
+            
             onmouseover = 'mouseEnterCard(event)'
             onmouseout  = 'mouseExitCard(event)'
         >
@@ -80,16 +80,87 @@ function generate_small_card(data) {
 
 function generate_details_card(data) {
     console.log(data)
-    return `<img src='/static/img/card_image/${data['pin']}.jpg'>
-    <h1>${data['name']}</h1>
-    <h1>${data['level']}</h1>
-    <h1>${data['attribute']}<h1>
-    <h1>${data['description']}</h1>
-    <h1>${data['attack']}</h1>
-    <h1>${data['defense']}</h1>
-    <h1>${data['race']}</h1>
-    <h1>${data['type']}</h1>`
+    var retVal = ''
+    retVal += `<div class= 'd-flex detailed-view justify-content-center p-3 bg-dark text-light'>`
+    retVal += `<div class='quarter'>`
+    retVal += `<img class='bigCard' src='/static/img/card_image/${data['pin']}.jpg'>`
+    retVal += `</div>`
+    retVal += `<table class= 'table d-flex quarter text-light'>`//<div class='d-flex flex-column'>
+
+    retVal += `<tr>`
+    retVal += `<td>Name: </td>`
+    retVal += `<td>${data['name']}</td>`
+    retVal += `</tr>`
+    if (data['level'] != null)
+    {
+        retVal += `<tr>`
+        if(data['type'].includes("XYZ")) 
+            retVal += `<td>Rank</td>` 
+        else if (data['type'].includes("Link")) 
+            retVal += `<td>Link</td>` 
+        else 
+            retVal += `<td>Level</td>` 
+        retVal += `<td>${data['level']}</td>`
+        retVal += `</tr>`
+    }
+
+    if(data['attribute'] != null)
+    {
+        retVal += `<tr>`
+        retVal += `<td>Attribute:</td>`
+        retVal += `<td>${data['attribute']}</td>`
+        retVal += `</tr>`
+    }
+
+    if(data['link_markers'] != null)
+    {
+        retVal += `<tr>`
+        retVal += `<td>Link Markers: </td>`
+        retVal += `<td>${data['link_markers']}</td>`
+        retVal += `</tr>`
+    }
+
+    if(data['attack'] != null )
+    {
+        retVal += `<tr>`
+        retVal += `<td>Attack: </td>`
+        retVal += `<td>${data['attack']}</td>`
+        retVal += `</tr>`
+    }
+    if( data['defense'] != null)
+    {
+        retVal += `<tr>`
+        retVal += `<td>Defense: </td>`
+        retVal += `<td>${data['defense']}</td>`
+        retVal += `</tr>`
+    }
+    
+    if(data['race'] != null)
+    {
+        retVal += `<tr>` 
+        retVal += `<td>Race: </td>`
+        retVal += `<td>${data['race']}</td>`
+        retVal += `</tr>`
+    }
+
+    if(data['type'] != null)
+    {
+        retVal += `<tr>`
+        retVal += `<td>Type:</td>`
+        retVal += `<td>${data['type']}</td>`
+        retVal += `</tr>`
+
+    }
+
+    retVal +=  `</table>` //`</div>`
+    retVal += `<div class='half'>`
+    retVal += `<p>Description</p>`
+    retVal += `<p>${data['description']}`
+    retVal += `</div>`
+    retVal += `</div>`
+    return retVal
 }
+
 
 function renderDeck(deckValue) {
     console.log(`rendering Deck with cards ${deckValue['main']}`)
@@ -191,12 +262,23 @@ async function keyDownDoc(e) {
 
     console.log(`keypress: ${input} |TCID: ${targetCardID}`)
     
-        if (input === 'd') {
-            console.log("enable detailed View")
-            detailed = !detailed
-            if (!detailed)
-                document.querySelector("#cardDetails").innerHTML = ``
+    if (input === 'd') {
+        console.log("enable detailed View")
+        detailed = !detailed
+        if (!detailed)
+            document.querySelector("#cardDetails").innerHTML = ``
+        else
+        {   
+            if(targetCardID != null)
+                fetch(`/card/${targetCardID}.json`)
+                .then(res => res.json())
+                .then(data => {
+                    var innerHTML = generate_details_card(data)
+        
+                    document.querySelector("#cardDetails").innerHTML = innerHTML
+                })
         }
+    }
 }
 
 
@@ -207,7 +289,7 @@ document.addEventListener("mouseup", function (e) {
 })
 
 
-document.querySelector("#deckSide").addEventListener("mouseup", addCard)
+//document.querySelector("#deckSide").addEventListener("mouseup", addCard)
 
 document.addEventListener("mouseover", function (e) {
     origin = "deck"

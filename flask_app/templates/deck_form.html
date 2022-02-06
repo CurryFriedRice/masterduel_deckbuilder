@@ -14,6 +14,7 @@
             <div class="">
                 <div class="d-flex justify-content-between align-items-center">
                     <h1><a href='/dashboard'>Home</a></h1>
+                    <h1><a href="/about">About</a></h1>
                     {%if session['uuid']%}
                     <h1><a href="/account/logout"> logout</a></h1>
                     {%elif not session['uuid']%}
@@ -61,12 +62,13 @@
                         </form>
                         
                     </div>
-                    <div id="searchOutput" class="d-flex flex-wrap justify-content-left">
+                    <div id="searchOutput" class="d-flex flex-wrap justify-content-left overflow-auto">
                         
                     </div>
                 </div>
             </div>
         </div>
+        <div id="cardDetails"></div>
         <div id="errorOutput"></div>
         <form id="details" name="details" onsubmit="submitDeck(event)" class="d-flex flex-column">
             <label for="name"> Deck name </label> 
@@ -76,9 +78,7 @@
             <button>Submit Deck</button>
         </form>
     </div>
-    <div id="cardDetails">
-        HELLO
-    </div>
+            
 
     <script src="{{url_for('static',filename='js/deckList.js')}}"></script>
 </body>

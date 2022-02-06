@@ -45,18 +45,18 @@ async function submitDeck(e) {
     var data = new FormData(deckDetails);
     data.append("deck", JSON.stringify(deck))
     //TODO: Do some prevalidation before we ask the server to check it....
-    console.log(data)
+    //console.log(data)
     // form.append ("deck", deck)  
     var string = window.location.href
     string = string.substring(0,string.indexOf("/edit"))
-    console.log(string)
+    //console.log(string)
     var submit = await fetch(`${string}/update`, { method: 'POST', body: data })
         .then(res => {
             if (res.redirected) window.location = res.url;
             return res.json()
         })
         .then(data => {
-            console.log(data)
+            //console.log(data)
             errorText = ``
             for (items in data['error'])
                 errorText += `<p>ERROR: ${data['error'][items]}</p>`
@@ -77,26 +77,95 @@ function generate_small_card(data) {
     </div>
     `
 }
-
 function generate_details_card(data) {
-    console.log(data)
-    return `<img src='/static/img/card_image/${data['pin']}.jpg'>
-    <h1>${data['name']}</h1>
-    <h1>${data['level']}</h1>
-    <h1>${data['attribute']}<h1>
-    <h1>${data['description']}</h1>
-    <h1>${data['attack']}</h1>
-    <h1>${data['defense']}</h1>
-    <h1>${data['race']}</h1>
-    <h1>${data['type']}</h1>`
+    //console.log(data)
+    var retVal = ''
+    retVal += `<div class= 'd-flex detailed-view justify-content-center p-3 bg-dark text-light'>`
+    retVal += `<div class='quarter'>`
+    retVal += `<img class='bigCard' src='/static/img/card_image/${data['pin']}.jpg'>`
+    retVal += `</div>`
+    retVal += `<table class= 'table d-flex quarter text-light'>`//<div class='d-flex flex-column'>
+
+    retVal += `<tr>`
+    retVal += `<td>Name: </td>`
+    retVal += `<td>${data['name']}</td>`
+    retVal += `</tr>`
+    if (data['level'] != null)
+    {
+        retVal += `<tr>`
+        if(data['type'].includes("XYZ")) 
+            retVal += `<td>Rank</td>` 
+        else if (data['type'].includes("Link")) 
+            retVal += `<td>Link</td>` 
+        else 
+            retVal += `<td>Level</td>` 
+        retVal += `<td>${data['level']}</td>`
+        retVal += `</tr>`
+    }
+
+    if(data['attribute'] != null)
+    {
+        retVal += `<tr>`
+        retVal += `<td>Attribute:</td>`
+        retVal += `<td>${data['attribute']}</td>`
+        retVal += `</tr>`
+    }
+
+    if(data['link_markers'] != null)
+    {
+        retVal += `<tr>`
+        retVal += `<td>Link Markers: </td>`
+        retVal += `<td>${data['link_markers']}</td>`
+        retVal += `</tr>`
+    }
+
+    if(data['attack'] != null )
+    {
+        retVal += `<tr>`
+        retVal += `<td>Attack: </td>`
+        retVal += `<td>${data['attack']}</td>`
+        retVal += `</tr>`
+    }
+    if( data['defense'] != null)
+    {
+        retVal += `<tr>`
+        retVal += `<td>Defense: </td>`
+        retVal += `<td>${data['defense']}</td>`
+        retVal += `</tr>`
+    }
+    
+    if(data['race'] != null)
+    {
+        retVal += `<tr>` 
+        retVal += `<td>Race: </td>`
+        retVal += `<td>${data['race']}</td>`
+        retVal += `</tr>`
+    }
+
+    if(data['type'] != null)
+    {
+        retVal += `<tr>`
+        retVal += `<td>Type:</td>`
+        retVal += `<td>${data['type']}</td>`
+        retVal += `</tr>`
+
+    }
+
+    retVal +=  `</table>` //`</div>`
+    retVal += `<div class='half'>`
+    retVal += `<p>Description</p>`
+    retVal += `<p>${data['description']}`
+    retVal += `</div>`
+    retVal += `</div>`
+    return retVal
 }
 
 function renderDeck(deckValue) {
-    console.log(`rendering Deck with cards ${deckValue['main']}`)
+    //console.log(`rendering Deck with cards ${deckValue['main']}`)
 
     var renderItem = ``
     for (const key in deckValue['main']) {
-        console.log(`${key} | ${deckValue['main'][key]}`)
+        //console.log(`${key} | ${deckValue['main'][key]}`)
         for (var count = 0; count < deckValue['main'][key]; count++) {
             renderItem += generate_small_card({ "pin": key })
         }
@@ -105,7 +174,7 @@ function renderDeck(deckValue) {
 
     renderItem = ''
     for (const key in deckValue['extra']) {
-        console.log(`${key} | ${deckValue['extra'][key]}`)
+        //console.log(`${key} | ${deckValue['extra'][key]}`)
         for (var count = 0; count < deckValue['extra'][key]; count++) {
             renderItem += generate_small_card({ "pin": key })
         }
@@ -142,7 +211,7 @@ function addCard() {
                     }
                     else //If it does not then we'll create it and set it to one
                     {
-                        console.log(data.pin)
+                        //console.log(data.pin)
                         deck[target][data.pin] = 1
                     }
                 renderDeck(deck)
@@ -165,7 +234,7 @@ function mouseEnterCard(event) {
     event.preventDefault()
     if (!holdingCard) {
         targetCardID = event.target.getAttribute('card_pin')
-        console.log(`Mouse Over: ${targetCardID}`);
+        //console.log(`Mouse Over: ${targetCardID}`);
     }
     if (detailed) {
         fetch(`/card/${targetCardID}.json`)
@@ -181,7 +250,7 @@ function mouseExitCard(event) {
     event.preventDefault()
     if (!holdingCard) {
         targetCardID = null
-        console.log(`Mouse out: ${targetCardID}`);
+        //console.log(`Mouse out: ${targetCardID}`);
     }
 }
 
@@ -189,16 +258,16 @@ async function keyDownDoc(e) {
 
     var input = e.key;
 
-    console.log(`keypress: ${input} |TCID: ${targetCardID}`)
+    //console.log(`keypress: ${input} |TCID: ${targetCardID}`)
     if (targetCardID != null) {
         if (input === 'a') {
-            console.log("add card to Deck")
+            //console.log("add card to Deck")
             addCard()
         } else if (input === "s") {
-            console.log("Remove Card from deck")
+            //console.log("Remove Card from deck")
             subtractCard()
         } else if (input === 'd') {
-            console.log("enable detailed View")
+            //console.log("enable detailed View")
             detailed = !detailed
             if (!detailed)
                 document.querySelector("#cardDetails").innerHTML = ``
@@ -210,7 +279,7 @@ async function keyDownDoc(e) {
 document.addEventListener("mouseup", function (e) {
     holdingCard = false;
     targetCardID = null
-    console.log(`holdingCard: ${holdingCard} | TCID ${targetCardID}`)
+    //console.log(`holdingCard: ${holdingCard} | TCID ${targetCardID}`)
 })
 
 
@@ -258,9 +327,28 @@ function prebuildDeck(card_pin) {
                 }
                 else //If it does not then we'll create it and set it to one
                 {
-                    console.log(data.pin)
+                    //console.log(data.pin)
                     deck[target][data.pin] = 1
                 }
             renderDeck(deck)
         })
+}
+
+
+function deleteDeck(e)
+{
+    e.preventDefault();
+    let data =document.getElementById("delete")
+    let form = new FormData(data)
+    fetch(window.location.href.replace("/edit","/delete"), {method:"POST", body: form})
+    .then(res =>  {
+        if (res.redirected) window.location = res.url;
+        return res.json();
+    })
+    .then(data => {
+        searchResults = data['data'];
+        if ('error' in data) {
+            document.querySelector("#errorOutput").innerHTML = `<h1>${data['error']}</h1>`
+        }
+    })
 }

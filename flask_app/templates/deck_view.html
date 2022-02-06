@@ -13,11 +13,12 @@
 
 <body>
     <div class="container">
-
+        
         <div id="deckbuldingArea">
             <div class="">
                 <div class="d-flex justify-content-between align-items-center">
                     <h1><a href='/dashboard'>Home</a></h1>
+                    <h1><a href="/about">About</a></h1>
                     {%if session['uuid']%}
                     <h1><a href="/account/logout"> logout</a></h1>
                     {%elif not session['uuid']%}
@@ -39,6 +40,9 @@
                     <p>created by: <a href="/user/{{creator['uuid']}}">{{creator['username']}} </a></p>
                 {%endif%}
             </div>
+            <ul> 
+                <li>When hovering over as card you can press 'd' to show more details</li>
+            </ul>
             <div class="d-flex justify-content-around">
                 <div id="deckSide">
                     <div id="mainDeck" class="border border-2">
@@ -63,7 +67,7 @@
         
         <div id="errorOutput"></div>
         <div id="cardDetails">
-            HELLO
+            
         </div>
     </div>
 
