@@ -26,7 +26,7 @@ async function search(e) {
                     html += generate_small_card(dat)
                 }
                 document.querySelector("#searchOutput").innerHTML = html
-                console.log(document.querySelectorAll(".card"))
+                //console.log(document.querySelectorAll(".card"))
             }
 
             // for (var item of document.querySelectorAll(".card")){

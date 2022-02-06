@@ -26,7 +26,7 @@ async function search(e) {
                     html += generate_small_card(dat)
                 }
                 document.querySelector("#searchOutput").innerHTML = html
-                console.log(document.querySelectorAll(".card"))
+                //console.log(document.querySelectorAll(".card"))
             }
 
             // for (var item of document.querySelectorAll(".card")){
@@ -45,7 +45,7 @@ async function submitDeck(e) {
     var data = new FormData(deckDetails);
     data.append("deck", JSON.stringify(deck))
     //TODO: Do some prevalidation before we ask the server to check it....
-    console.log(data)
+    //console.log(data)
     // form.append ("deck", deck)  
     var submit = await fetch('/deck/create', { method: 'POST', body: data })
         .then(res => {
@@ -53,7 +53,7 @@ async function submitDeck(e) {
             return res.json()
         })
         .then(data => {
-            console.log(data)
+            //console.log(data)
             errorText = ``
             for (items in data['error'])
                 errorText += `<p>ERROR: ${data['error'][items]}</p>`
@@ -76,7 +76,7 @@ function generate_small_card(data) {
 }
 
 function generate_details_card(data) {
-    console.log(data)
+    //console.log(data)
     var retVal = ''
     retVal += `<div class= 'd-flex detailed-view justify-content-center p-3 bg-dark text-light'>`
     retVal += `<div class='quarter'>`
@@ -158,11 +158,11 @@ function generate_details_card(data) {
     return retVal
 }
 function renderDeck(deckValue) {
-    console.log(`rendering Deck with cards ${deckValue['main']}`)
+    //console.log(`rendering Deck with cards ${deckValue['main']}`)
 
     var renderItem = ``
     for (const key in deckValue['main']) {
-        console.log(`${key} | ${deckValue['main'][key]}`)
+        //console.log(`${key} | ${deckValue['main'][key]}`)
         for (var count = 0; count < deckValue['main'][key]; count++) {
             renderItem += generate_small_card({ "pin": key })
         }
@@ -171,7 +171,7 @@ function renderDeck(deckValue) {
 
     renderItem = ''
     for (const key in deckValue['extra']) {
-        console.log(`${key} | ${deckValue['extra'][key]}`)
+        //console.log(`${key} | ${deckValue['extra'][key]}`)
         for (var count = 0; count < deckValue['extra'][key]; count++) {
             renderItem += generate_small_card({ "pin": key })
         }
@@ -208,7 +208,7 @@ function addCard() {
                     }
                     else //If it does not then we'll create it and set it to one
                     {
-                        console.log(data.pin)
+                        //console.log(data.pin)
                         deck[target][data.pin] = 1
                     }
                 renderDeck(deck)
@@ -231,7 +231,7 @@ function mouseEnterCard(event) {
     event.preventDefault()
     if (!holdingCard) {
         targetCardID = event.target.getAttribute('card_pin')
-        console.log(`Mouse Over: ${targetCardID}`);
+        //console.log(`Mouse Over: ${targetCardID}`);
     }
     if (detailed) {
         fetch(`/card/${targetCardID}.json`)
@@ -247,7 +247,7 @@ function mouseExitCard(event) {
     event.preventDefault()
     if (!holdingCard) {
         targetCardID = null
-        console.log(`Mouse out: ${targetCardID}`);
+        //console.log(`Mouse out: ${targetCardID}`);
     }
 }
 
@@ -258,13 +258,13 @@ async function keyDownDoc(e) {
     console.log(`keypress: ${input} |TCID: ${targetCardID}`)
     if (targetCardID != null) {
         if (input === 'a') {
-            console.log("add card to Deck")
+            //console.log("add card to Deck")
             addCard()
         } else if (input === "s") {
-            console.log("Remove Card from deck")
+            //console.log("Remove Card from deck")
             subtractCard()
         } else if (input === 'd') {
-            console.log("enable detailed View")
+            //console.log("enable detailed View")
             detailed = !detailed
             if (!detailed)
                 document.querySelector("#cardDetails").innerHTML = ``
@@ -276,7 +276,7 @@ async function keyDownDoc(e) {
 document.addEventListener("mouseup", function (e) {
     holdingCard = false;
     targetCardID = null
-    console.log(`holdingCard: ${holdingCard} | TCID ${targetCardID}`)
+    //console.log(`holdingCard: ${holdingCard} | TCID ${targetCardID}`)
 })
 
 
