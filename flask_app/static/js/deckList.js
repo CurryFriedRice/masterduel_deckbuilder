@@ -256,6 +256,7 @@ async function keyDownDoc(e) {
     var input = e.key;
 
     //console.log(`keypress: ${input} |TCID: ${targetCardID}`)
+    
     if (targetCardID != null) {
         if (input === 'a') {
             //console.log("add card to Deck")
