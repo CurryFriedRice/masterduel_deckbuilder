@@ -213,7 +213,7 @@ function addCard() {
                     }
                     else //If it does not then we'll create it and set it to one
                     {
-                        console.log(data.pin)
+                        //console.log(data.pin)
                         deck[target][data.pin] = 1
                     }
                 renderDeck(deck)
