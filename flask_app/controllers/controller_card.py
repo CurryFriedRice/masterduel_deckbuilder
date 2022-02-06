@@ -109,13 +109,13 @@ def search_card():
                 }
                 print(card_data)
                 Card.create(card_data)
-                for image in data['card_images']:
-                    filepath = Path(f"{app.static_folder}/img/card_image/{image['id']}.jpg")
-                    if not Path.is_file(filepath): 
-                        save_image(filepath, image['image_url'])
-                    filepath_smoll = Path(f"{app.static_folder}/img/card_image_small/{image['id']}.jpg")
-                    if not Path.is_file(filepath_smoll): 
-                        save_image(filepath_smoll, image['image_url_small'])
+            for image in data['card_images']:
+                filepath = Path(f"{app.static_folder}/img/card_image/{image['id']}.jpg")
+                if not Path.is_file(filepath): 
+                    save_image(filepath, image['image_url'])
+                filepath_smoll = Path(f"{app.static_folder}/img/card_image_small/{image['id']}.jpg")
+                if not Path.is_file(filepath_smoll): 
+                    save_image(filepath_smoll, image['image_url_small'])
     else: 
         print("Query Already Ran " + request.form['query'] + " moving onto getting them from our DB...")
     cards = model_card.Card.get_all_with_name(request.form['query'])
